@@ -29,7 +29,7 @@ icon = os.path.join(addonFolder, "icon.png").encode('utf-8')
 
 def translation(id):
     return addon.getLocalizedString(id).encode('utf-8')
-    
+
 if not os.path.exists(os.path.join(addonUserDataFolder, "settings.xml")):
     xbmc.executebuiltin('XBMC.Notification(Info:,'+translation(30081)+',10000,'+icon+')')
     addon.openSettings()
@@ -699,7 +699,7 @@ def playVideo(videoID, selectQuality=False, playTrailer=False):
                         playVideo(videoID, selectQuality)
     else:
         xbmc.executebuiltin('XBMC.Notification(Info:,'+translation(30082)+',10000,'+icon+')')
-   
+
 
 def showInfo(videoID):
     xbmcplugin.setContent(pluginhandle, "movies")
@@ -739,7 +739,7 @@ def showInfo(videoID):
         wnd.getControl(wnd.getFocusId()).selectItem(1)
     except:
         pass
-        
+
 
 def deleteCookies():
     if os.path.exists(cookieFile):
@@ -774,7 +774,7 @@ def search(type):
                 listMovies(urlMain+"/mn/search/ajax/?_encoding=UTF8&url=node%3D3356010031&field-keywords="+search_string)
             elif type=="tv":
                 listShows(urlMain+"/mn/search/ajax/?_encoding=UTF8&url=node%3D3356011031&field-keywords="+search_string)
-        
+
 
 
 def addToQueue(videoID, videoType):
@@ -798,7 +798,7 @@ def login():
     content = opener.open(urlMain).read()
     if '"isPrime":1' in content:
         return "prime"
-    elif 'id="nav-item-signout"' in content:
+    elif '"id":"nav-item-signout"' in content:
         return "noprime"
     else:
         content = ""
@@ -823,7 +823,7 @@ def login():
                 content = opener.open(urlMain).read()
         if '"isPrime":1' in content:
             return "prime"
-        elif 'id="nav-item-signout"' in content:
+        elif '"id":""nav-item-signout"' in content:
             return "noprime"
         else:
             return "none"
@@ -853,9 +853,9 @@ def cleanSeasonTitle(title):
 
 def cleanTitleTMDB(title):
     if "[" in title:
-        title = title[:title.find("[")]    
+        title = title[:title.find("[")]
     if " OmU" in title:
-        title = title[:title.find(" OmU")]    
+        title = title[:title.find(" OmU")]
     return title
 
 
@@ -907,7 +907,7 @@ def debug(content):
     fh=open(debugFile, "w")
     fh.write(content)
     fh.close()
-        
+
 
 def parameters_string_to_dict(parameters):
     paramDict = {}
