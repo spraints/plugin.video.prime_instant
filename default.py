@@ -104,7 +104,10 @@ def index():
         addDir(translation(30003), "", 'browseTV', "")
         xbmcplugin.endOfDirectory(pluginhandle)
     elif loginResult=="noprime":
-        listOriginals()
+        if siteVersion == "com":
+            addDir("My Shows", urlMain+"/Instant-Video/b/ref=topnav_storetab_atv?_encoding=UTF8&node=2858778011", 'listMyShows', "")
+        addDir("amazon originals", "", 'listOriginals', "")
+        xbmcplugin.endOfDirectory(pluginhandle)
     elif loginResult=="none":
         xbmc.executebuiltin('XBMC.Notification(Info:,'+translation(30082)+',10000,'+icon+')')
 
@@ -199,6 +202,16 @@ def listDecadesMovie():
         addDir(translation(30022), urlMain+"/gp/search/ajax/?rh=n%3A3280626031%2Cn%3A!3010086031%2Cn%3A3356010031%2Cp_n_feature_three_browse-bin%3A3289672031&sort=popularity-rank&ie=UTF8", 'listMovies', "")
     xbmcplugin.endOfDirectory(pluginhandle)
 
+def listMyShows(url):
+    content = opener.open(url).read()
+    content = content[content.find('<h2>Continue Watching: Your TV Shows and Movies</h2>'):]
+    content = content[content.find('<li'):]
+    content = content[:content.find('</ul>')]
+    spl = content.split("<li")
+    for i in range(1, len(spl), 1):
+        extractAndAddShow(spl[i], {})
+
+    xbmcplugin.endOfDirectory(pluginhandle)
 
 def listOriginals():
     if siteVersion=="de":
@@ -229,28 +242,29 @@ def listOriginals():
     thumbs['niko'] = 'http://ecx.images-amazon.com/images/I/51XjJrg9JLL.jpg'
     thumbs['justaddmagic'] = 'http://ecx.images-amazon.com/images/I/5159YFd0hQL.jpg'
     for i in range(1, len(spl), 1):
-        entry = spl[i]
-        match = re.compile("/gp/product/(.+?)/", re.DOTALL).findall(entry)
-        videoID = match[0]
-        match = re.compile('alt="(.+?)"', re.DOTALL).findall(entry)
-        title = match[0]
-        title = cleanTitle(title)
-        titleT = title.lower().replace(' ', '').strip()
-        titleT = titleT.replace("pointofhonour", "pointofhonor")
-        titleT = titleT.replace("buddytechdective", "buddytechdetective")
-        titleT = titleT.replace("buddytechdetectives", "buddytechdetective")
-        titleT = titleT.replace("thestinkyanddirtyshow", "stinkyanddirty")
-        titleT = titleT.replace("nikkoandtheswordoflight", "niko")
-        titleT = titleT.replace("nikoandtheswordoflight", "niko")
-        thumb = ""
-        if titleT in thumbs:
-            thumb = thumbs[titleT]
-        addShowDir(title, videoID, "listSeasons", thumb, "tv")
+        extractAndAddShow(spl[i], thumbs)
     xbmcplugin.endOfDirectory(pluginhandle)
     xbmc.sleep(100)
     if forceView:
         xbmc.executebuiltin('Container.SetViewMode(500)')
 
+def extractAndAddShow(entry, thumbs):
+    match = re.compile("/gp/product/(.+?)/", re.DOTALL).findall(entry)
+    videoID = match[0]
+    match = re.compile('alt="(.+?)"', re.DOTALL).findall(entry)
+    title = match[0]
+    title = cleanTitle(title)
+    titleT = title.lower().replace(' ', '').strip()
+    titleT = titleT.replace("pointofhonour", "pointofhonor")
+    titleT = titleT.replace("buddytechdective", "buddytechdetective")
+    titleT = titleT.replace("buddytechdetectives", "buddytechdetective")
+    titleT = titleT.replace("thestinkyanddirtyshow", "stinkyanddirty")
+    titleT = titleT.replace("nikkoandtheswordoflight", "niko")
+    titleT = titleT.replace("nikoandtheswordoflight", "niko")
+    thumb = ""
+    if titleT in thumbs:
+        thumb = thumbs[titleT]
+    addShowDir(title, videoID, "listSeasons", thumb, "tv")
 
 def listWatchList(url):
     content = opener.open(url).read()
@@ -1092,6 +1106,8 @@ elif mode == 'login':
     login()
 elif mode == 'listDecadesMovie':
     listDecadesMovie()
+elif mode == 'listMyShows':
+    listMyShows(url)
 elif mode == 'listOriginals':
     listOriginals()
 elif mode == 'listSeasons':
